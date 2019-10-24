@@ -7,6 +7,7 @@ var scraped = false;
 module.exports = function(app) {
   app.get("/scrape", function(req, res) {
     var results = [];
+    var ind = -1;
     axios.get("https://www.nytimes.com").then(function(response) {
       var $ = cheerio.load(response.data);
 
@@ -22,20 +23,22 @@ module.exports = function(app) {
           .find("p")
           .text();
         if (summary !== "") {
-        //   db.Article.findOne({ link: "https://www.nytimes.com" + link })
-        //     .then(function(dbArt) {
-        //       if (!dbArt) {
-        //         scraped = true;
+          db.Article.findOne({ link: "https://www.nytimes.com" + link })
+            .then(function(dbArt) {
+              if (!dbArt) {
+                scraped = true;
+                ind += 1;
                 results.push({
                   title: title,
                   link: "https://www.nytimes.com" + link,
-                  summary: summary
+                  summary: summary,
+                  ind: ind
                 });
-            //   }
-            // })
-            // .catch(function(err) {
-            //   res.json(err);
-            // });
+              }
+            })
+            .catch(function(err) {
+              res.json(err);
+            });
         }
       });
 
@@ -50,6 +53,32 @@ module.exports = function(app) {
   app.get("/clear", function(req, res) {
     scraped = false;
     res.render("home");
+  });
+
+  app.get("/savedarticles", function(req, res) {
+    db.Article.find({})
+      .then(function(dbArt) {
+        res.render("saved", { news: dbArt });
+      })
+      .catch(function(err) {
+        res.json(err);
+      });
+  });
+
+  // Removes article
+  app.post("/deletingarticle/:id", (req, res) => {
+    console.log("222222222222222222222222 " + req.params.id); ///////////////
+
+    db.Note.deleteOne({
+      _id: req.params.id
+    })
+      .then(result => {
+        console.log("33333333333333333333333333 " + JSON.stringify(result)); ////////////
+        res.end();
+      })
+      .catch(error => {
+        res.send(err);
+      });
   });
 
   app.post("/savingarticle", function(req, res) {

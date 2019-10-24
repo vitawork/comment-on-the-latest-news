@@ -13,7 +13,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="./savedarticles">Saved Articles</a>
+        <a class="nav-link" href="#">Saved Articles</a>
       </li>
       <li class="nav-item">
         <a class="btn btn-danger scrape-new" href="./scrape">SCRAPE NEW ARTICLES!</a>
@@ -39,11 +39,12 @@
 
   {{#if news}}
   {{#each news}}
-  <div class="card" id={{ind}}>
+  <div class="card" id={{_id}}>
     <div class="card-header">
       <h3>
         <a class="article-link" target="_blank" rel="noopener noreferrer" href={{link}}>{{title}}</a>
-        <a class="btn btn-success save" id="btnsave" data-link={{link}} data-ind={{ind}}>Save Article</a>
+        <a class="btn btn-danger delete" id={{_id}}>Delete</a>
+        <a class="btn btn-info notes" data-id={{_id}}>Article Notes</a>
       </h3>
     </div>
     <div class="card-body">
@@ -53,7 +54,7 @@
   {{/each}}
   {{else}}
   <div class="alert alert-warning text-center">
-    <h4>Uh Oh. Looks like we don't have articles yet. Scrape!!!</h4>
+    <h4>Uh Oh. Looks like you don't have any saved articles yet.</h4>
   </div>
   {{/if}}
 
