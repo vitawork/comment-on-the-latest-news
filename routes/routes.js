@@ -69,7 +69,7 @@ module.exports = function(app) {
   app.post("/deletingarticle/:id", (req, res) => {
     console.log("222222222222222222222222 " + req.params.id); ///////////////
 
-    db.Note.deleteOne({
+    db.Article.deleteOne({
       _id: req.params.id
     })
       .then(result => {
