@@ -23,9 +23,10 @@ module.exports = function(app) {
           .find("p")
           .text();
         if (summary !== "") {
-          db.Article.findOne({ link: "https://www.nytimes.com" + link })
-            .then(function(dbArt) {
-              if (!dbArt) {
+          // db.Article.findOne({ link: "https://www.nytimes.com" + link })
+          //   .then(function(dbArt) {
+          //     if (!dbArt) {
+
                 scraped = true;
                 ind += 1;
                 results.push({
@@ -34,11 +35,12 @@ module.exports = function(app) {
                   summary: summary,
                   ind: ind
                 });
-              }
-            })
-            .catch(function(err) {
-              res.json(err);
-            });
+
+        //       }
+        //     })
+        //     .catch(function(err) {
+        //       res.json(err);
+        //     });
         }
       });
 
