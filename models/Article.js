@@ -9,10 +9,15 @@ var ArticleSchema = new Schema({
   },
   link: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   summary: {
     type: String,
+    required: true
+  },
+  saved: {
+    type: Boolean,
     required: true
   },
 

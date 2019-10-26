@@ -1,19 +1,9 @@
 function SavingArticle() {
-  var ind = $(this).data("ind");
+  var id = $(this).data("id");
 
-  var art = {
-    title: $(this + " #" + ind + ":parent a.article-link").text(),
-    link: $(this).data("link"),
-    summary: $(this + " #" + ind + ":parent .card-body").text()
-  };
+  $(this + " #" + id + ":parent").remove();
 
-  $(this + " #" + ind + ":parent").remove();
-
-  $.ajax({
-    url: "/savingarticle",
-    type: "POST",
-    data: art
-  }).then(function(result) {});
+  $.post(`/savingarticle/${id}`, result => {});
 }
 
 function DeletingArticle() {
@@ -38,9 +28,10 @@ function SavingNote() {
           .trim()
       }
     }).then(function(data) {
+      $("#noteslist p").empty();
+      $("#noteslist").append("<li>" + $("#message-text").val() + "</li>");
       $("#message-text").val("");
       $("#btnsavenote").attr("data-id", "");
-      location.reload();
     });
   } else {
     $("#message-text").css("background", "rgb(240, 207, 207)");
@@ -55,7 +46,7 @@ function FillingModal() {
     var notes = result.note;
     $("#noteslist").empty();
     if (notes.length === 0) {
-      $("#noteslist").append("<li>There are not notes yet.</li>");
+      $("#noteslist").append("<p>There are not notes yet.</p>");
     } else
       for (let i = 0; i < notes.length; i++) {
         $("#noteslist").append("<li>" + notes[i].body + "</li>");

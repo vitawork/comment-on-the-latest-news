@@ -19,7 +19,7 @@
         <a class="btn btn-success scrape-new" href="./scrape">SCRAPE NEW ARTICLES!</a>
       </li>
       <li class="nav-item">
-        <a class="btn btn-success clear" href="./clear">CLEAR ARTICLES!</a>
+        <a class="btn btn-success clear" href="./clearsavedart">CLEAR SAVED ARTICLES!</a>
       </li>
     </ul>
   </div>
@@ -29,7 +29,7 @@
   <div class="overlay"></div>
   <div class="background-image"></div>
   <div class="caption">
-    <h1>Mongo Scraper</h1>
+    <h1>Saved Articles</h1>
     <p>New York Times Edition</p>
   </div>
 </div>
@@ -60,6 +60,8 @@
 
   </div>
   {{/each}}
+
+  {{!-- modal --}}
   <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -73,7 +75,7 @@
         <div class="modal-body">
           <ul id='noteslist'>
 
-            <li>There are not notes yet.</li>
+            <p id="emptyp">There are not notes yet.</p>
 
           </ul>
         </div>
@@ -83,12 +85,13 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary textempty" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary savenote textempty" id='btnsavenote' data-id="">Save
+          <button type="button" class="btn btn-primary savenote" id='btnsavenote' data-id="">Save
             Note</button>
         </div>
       </div>
     </div>
   </div>
+  {{!-- modal --}}
   {{else}}
   <div class="alert alert-warning text-center">
     <h4>Uh Oh. Looks like you don't have any saved articles yet.</h4>

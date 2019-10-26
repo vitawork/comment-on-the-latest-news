@@ -2,12 +2,9 @@ var db = require("../models");
 var axios = require("axios");
 var cheerio = require("cheerio");
 
-var scraped = false;
-
 module.exports = function(app) {
   app.get("/scrape", function(req, res) {
     var results = [];
-    var ind = -1;
     axios.get("https://www.nytimes.com").then(function(response) {
       var $ = cheerio.load(response.data);
 
@@ -23,42 +20,50 @@ module.exports = function(app) {
           .find("p")
           .text();
         if (summary !== "") {
-          // db.Article.findOne({ link: "https://www.nytimes.com" + link })
-          //   .then(function(dbArt) {
-          //     if (!dbArt) {
-
-          scraped = true;
-          ind += 1;
-          results.push({
+          db.Article.create({
             title: title,
             link: "https://www.nytimes.com" + link,
             summary: summary,
-            ind: ind
-          });
-
-          //       }
-          //     })
-          //     .catch(function(err) {
-          //       res.json(err);
-          //     });
+            saved: false
+          }).then(function(dbArticle) {});
         }
       });
-
-      res.render("home", { news: results });
+      res.redirect("/");
     });
   });
 
   app.get("/home", function(req, res) {
-    scraped ? res.redirect("./scrape") : res.render("home");
+    res.redirect("/");
   });
 
   app.get("/clear", function(req, res) {
-    scraped = false;
-    res.render("home");
+    db.Article.deleteMany({ saved: false })
+      .then(() => {
+        res.render("home");
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  });
+
+  app.get("/clearsavedart", function(req, res) {
+    db.Article.deleteMany({ saved: true })
+      .then(() => {
+        db.Note.deleteMany({})
+          .then(() => {
+            res.redirect("/");
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      })
+      .catch(error => {
+        console.log(error);
+      });
   });
 
   app.get("/savedarticles", function(req, res) {
-    db.Article.find({})
+    db.Article.find({ saved: true })
       .populate("note")
       .then(function(dbArt) {
         res.render("saved", { news: dbArt });
@@ -104,9 +109,14 @@ module.exports = function(app) {
           });
       });
   });
-
-  app.post("/savingarticle", function(req, res) {
-    db.Article.create(req.body)
+  ///////////////////////////////////////////////////////////////////////////////////
+  app.post("/savingarticle/:id", function(req, res) {
+    db.Article.findOneAndUpdate(
+      {
+        _id: req.params.id
+      },
+      { saved: true }
+    )
       .then(function(dbArticle) {
         res.send(dbArticle);
       })
@@ -148,6 +158,12 @@ module.exports = function(app) {
   });
 
   app.get("*", function(req, res) {
-    res.render("home");
+    db.Article.find({ saved: false })
+      .then(function(dbArt) {
+        res.render("home", { news: dbArt });
+      })
+      .catch(function(err) {
+        res.json(err);
+      });
   });
 };
