@@ -97,19 +97,34 @@ module.exports = function(app) {
             }).then(result => {});
           }
         }
-        //remiving art now
-        db.Article.deleteOne({
-          _id: req.params.id
-        })
-          .then(result => {
-            res.end();
-          })
-          .catch(error => {
-            res.send(err);
-          });
       });
   });
-  ///////////////////////////////////////////////////////////////////////////////////
+
+  // Removes note
+  app.post("/deletingnote/:id", (req, res) => {
+    db.Note.deleteOne({
+      _id: req.params.id
+    })
+      .then(result => {
+        res.end();
+      })
+      .catch(error => {
+        res.send(err);
+      });
+  });
+
+  //
+  app.post("/aarticle/:id", function(req, res) {
+    db.Article.findOne({ _id: req.params.id })
+      .populate("note")
+      .then(function(dbArt) {
+        res.send(dbArt);
+      })
+      .catch(function(err) {
+        res.json(err);
+      });
+  });
+
   app.post("/savingarticle/:id", function(req, res) {
     db.Article.findOneAndUpdate(
       {
@@ -127,30 +142,20 @@ module.exports = function(app) {
 
   // Adds a new note
   app.post("/newnote/:id", (req, res) => {
+    var noteid;
     db.Note.create(req.body)
       .then(function(dbNote) {
+        noteid = dbNote._id;
         return db.Article.findOneAndUpdate(
           {
             _id: req.params.id
           },
-          { $push: { note: dbNote._id } },
+          { $push: { note: noteid } },
           { new: true }
         );
       })
       .then(function(dbUser) {
-        res.json(dbUser);
-      })
-      .catch(function(err) {
-        res.json(err);
-      });
-  });
-
-  //
-  app.post("/aarticle/:id", function(req, res) {
-    db.Article.findOne({ _id: req.params.id })
-      .populate("note")
-      .then(function(dbArt) {
-        res.send(dbArt);
+        res.send(noteid);
       })
       .catch(function(err) {
         res.json(err);

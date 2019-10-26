@@ -29,7 +29,15 @@ function SavingNote() {
       }
     }).then(function(data) {
       $("#noteslist p").empty();
-      $("#noteslist").append("<li>" + $("#message-text").val() + "</li>");
+      $("#noteslist").append(
+        "<li id=" +
+          data +
+          ">" +
+          $("#message-text").val() +
+          " <button id=" +
+          data +
+          " class='btn btn-link'> X</button></li>"
+      );
       $("#message-text").val("");
       $("#btnsavenote").attr("data-id", "");
     });
@@ -49,8 +57,22 @@ function FillingModal() {
       $("#noteslist").append("<p>There are not notes yet.</p>");
     } else
       for (let i = 0; i < notes.length; i++) {
-        $("#noteslist").append("<li>" + notes[i].body + "</li>");
+        $("#noteslist").append(
+          "<li id=" +
+            notes[i]._id +
+            ">" +
+            notes[i].body +
+            " <button id=" +
+            notes[i]._id +
+            " class='btn btn-link'> X</button></li>"
+        );
       }
+  });
+}
+
+function DeletingNote() {
+  $.post(`/deletingnote/${$(this).attr("id")}`, result => {
+    $("#" + $(this).attr("id")).remove();
   });
 }
 
@@ -59,6 +81,7 @@ $(document).ready(function() {
   $(document).on("click", ".delete", DeletingArticle);
   $(document).on("click", ".savenote", SavingNote);
   $(document).on("click", ".notes", FillingModal);
+  $(document).on("click", ".btn-link", DeletingNote);
   $(document).on("click", ".textempty", () => {
     $("#message-text").val("");
   });

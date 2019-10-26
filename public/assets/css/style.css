@@ -9,7 +9,7 @@ body {
 }
 
 .card a:not([href]):not([tabindex]).scrape-new {
-  color: #2196F3;
+  color: #2196f3;
 }
 
 .footer {
