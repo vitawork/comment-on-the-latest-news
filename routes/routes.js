@@ -27,20 +27,20 @@ module.exports = function(app) {
           //   .then(function(dbArt) {
           //     if (!dbArt) {
 
-                scraped = true;
-                ind += 1;
-                results.push({
-                  title: title,
-                  link: "https://www.nytimes.com" + link,
-                  summary: summary,
-                  ind: ind
-                });
+          scraped = true;
+          ind += 1;
+          results.push({
+            title: title,
+            link: "https://www.nytimes.com" + link,
+            summary: summary,
+            ind: ind
+          });
 
-        //       }
-        //     })
-        //     .catch(function(err) {
-        //       res.json(err);
-        //     });
+          //       }
+          //     })
+          //     .catch(function(err) {
+          //       res.json(err);
+          //     });
         }
       });
 
@@ -59,6 +59,7 @@ module.exports = function(app) {
 
   app.get("/savedarticles", function(req, res) {
     db.Article.find({})
+      .populate("note")
       .then(function(dbArt) {
         res.render("saved", { news: dbArt });
       })
@@ -69,17 +70,38 @@ module.exports = function(app) {
 
   // Removes article
   app.post("/deletingarticle/:id", (req, res) => {
-    console.log("222222222222222222222222 " + req.params.id); ///////////////
-
-    db.Article.deleteOne({
-      _id: req.params.id
-    })
-      .then(result => {
-        console.log("33333333333333333333333333 " + JSON.stringify(result)); ////////////
-        res.end();
-      })
-      .catch(error => {
-        res.send(err);
+    db.Article.findOne({ _id: req.params.id })
+      .populate("note")
+      .then(function(dbArt) {
+        //remiving art now
+        db.Article.deleteOne({
+          _id: req.params.id
+        })
+          .then(result => {
+            res.end();
+          })
+          .catch(error => {
+            res.send(err);
+          });
+        //removing notes if has
+        if (dbArt) {
+          var notes = dbArt.note;
+          for (let i = 0; i < notes.length; i++) {
+            db.Note.deleteOne({
+              _id: notes[i]._id
+            }).then(result => {});
+          }
+        }
+        //remiving art now
+        db.Article.deleteOne({
+          _id: req.params.id
+        })
+          .then(result => {
+            res.end();
+          })
+          .catch(error => {
+            res.send(err);
+          });
       });
   });
 
@@ -89,8 +111,39 @@ module.exports = function(app) {
         res.send(dbArticle);
       })
       .catch(function(err) {
-        // If an error occurred, log it
         console.log(err);
+      });
+  });
+
+  // Adds a new note
+  app.post("/newnote/:id", (req, res) => {
+    db.Note.create(req.body)
+      .then(function(dbNote) {
+        return db.Article.findOneAndUpdate(
+          {
+            _id: req.params.id
+          },
+          { $push: { note: dbNote._id } },
+          { new: true }
+        );
+      })
+      .then(function(dbUser) {
+        res.json(dbUser);
+      })
+      .catch(function(err) {
+        res.json(err);
+      });
+  });
+
+  //
+  app.post("/aarticle/:id", function(req, res) {
+    db.Article.findOne({ _id: req.params.id })
+      .populate("note")
+      .then(function(dbArt) {
+        res.send(dbArt);
+      })
+      .catch(function(err) {
+        res.json(err);
       });
   });
 
